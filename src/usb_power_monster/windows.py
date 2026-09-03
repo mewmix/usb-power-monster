@@ -73,14 +73,31 @@ class WindowsBackend(PlatformBackend):
     def start_trace(self, log_dir: Path) -> None:
         log_dir.mkdir(parents=True, exist_ok=True)
         etl = log_dir / "usb.etl"
-        self._run("logman", "stop", self.trace_name, "-ets", check=False)
-        self._run("logman", "create", "trace", self.trace_name,
-                  "-o", str(etl), "-p", "Microsoft-Windows-USB-USBXHCI", "0xffffffffffffffff", "0xff",
-                  "-p", "Microsoft-Windows-USB-UCX", "0xffffffffffffffff", "0xff",
-                  "-p", "Microsoft-Windows-USB-USBHUB3", "0xffffffffffffffff", "0xff", "-ets")
+
+        # Clean up a stale collector left behind by an interrupted prior run.
+        self._run("logman", "stop", "-n", self.trace_name, check=False)
+        self._run("logman", "delete", "-n", self.trace_name, check=False)
+
+        # logman accepts one -p provider per command. Create the collector first,
+        # then add each USB provider separately as documented by Microsoft.
+        self._run(
+            "logman", "create", "trace", "-n", self.trace_name,
+            "-o", str(etl), "-nb", "128", "640", "-bs", "128", "-y",
+        )
+        for provider in (
+            "Microsoft-Windows-USB-USBXHCI",
+            "Microsoft-Windows-USB-UCX",
+            "Microsoft-Windows-USB-USBHUB3",
+        ):
+            self._run(
+                "logman", "update", "trace", "-n", self.trace_name,
+                "-p", provider, "(Rundown,Power)",
+            )
+        self._run("logman", "start", "-n", self.trace_name)
 
     def stop_trace(self) -> None:
-        self._run("logman", "stop", self.trace_name, "-ets", check=False)
+        self._run("logman", "stop", "-n", self.trace_name, check=False)
+        self._run("logman", "delete", "-n", self.trace_name, check=False)
 
     def collect_failure_context(self) -> str:
         cp = self._run("wevtutil", "qe", "System", "/q:*[System[Provider[@Name='Microsoft-Windows-USB-USBHUB3']]]",
