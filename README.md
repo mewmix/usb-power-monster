@@ -48,15 +48,35 @@ sudo usb-power-monster /mnt/dut \
 
 ## Windows
 
-Run elevated. Supply Microsoft's USBLPM executable when explicit U1/U2 control is required:
+Run from an elevated PowerShell or Command Prompt.
+
+### Microsoft MUTT / USBLPM prerequisite
+
+Explicit U1/U2 control requires Microsoft's `UsbLPM.exe`. USBLPM is distributed as part of the official **MUTT USB Tool** package; do not download `UsbLPM.exe` from third-party mirrors.
+
+Official Microsoft download:
+
+- https://www.microsoft.com/en-us/download/details.aspx?id=51604
+- Current package at the time of writing: **MUTT USB Tool 3.0.0** (`MUTTPackage-3_0_0.msi`)
+
+After installing MUTT, locate `UsbLPM.exe` if necessary:
+
+```powershell
+Get-ChildItem "C:\Program Files*" -Recurse -Filter UsbLPM.exe -ErrorAction SilentlyContinue |
+    Select-Object -ExpandProperty FullName
+```
+
+Then pass the discovered executable to USB Power Monster:
 
 ```powershell
 usb-power-monster.exe E:\ `
-  --usblpm C:\Tools\USBLPM.exe `
+  --usblpm "C:\path\to\UsbLPM.exe" `
   --states U1,U2,U3 `
   --cycles 10000 `
   --payload-mib 256
 ```
+
+Microsoft's current MUTT download page lists Windows 10 and Windows 11 support. The separate legacy USBLPM documentation still describes USBLPM as Windows 8-only, so treat USBLPM availability and behavior on newer Windows builds as something the harness must detect and report rather than assume.
 
 ## Evidence discipline
 
