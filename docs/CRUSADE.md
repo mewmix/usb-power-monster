@@ -95,17 +95,40 @@ Linux exposes U1/U2/L1 enablement controls where the host/device/kernel support 
 
 ## Windows
 
-Run from an elevated terminal. USBLPM is optional but required by the current backend for explicit U1/U2 control:
+Run from an elevated terminal.
+
+### Install Microsoft MUTT / USBLPM
+
+USBLPM is optional for campaigns that do not require explicit U1/U2 control, but it is required by the current Windows backend when `U1` or `U2` must be configured directly.
+
+Microsoft distributes `UsbLPM.exe` inside the official **MUTT USB Tool** package:
+
+- Official download: https://www.microsoft.com/en-us/download/details.aspx?id=51604
+- Current package at the time of writing: **MUTT USB Tool 3.0.0**
+- Installer: `MUTTPackage-3_0_0.msi`
+
+Use the Microsoft package rather than copying `UsbLPM.exe` from an unknown or third-party source.
+
+After installation, locate the executable if its path is not obvious:
+
+```powershell
+Get-ChildItem "C:\Program Files*" -Recurse -Filter UsbLPM.exe -ErrorAction SilentlyContinue |
+    Select-Object -ExpandProperty FullName
+```
+
+Install USB Power Monster and run the campaign with the discovered path:
 
 ```powershell
 py -m pip install -e .
-usb-power-monster.exe E:\ \
-  --usblpm C:\Tools\USBLPM.exe \
-  --states U1,U2,U3 \
-  --cycles 10000 \
-  --payload-mib 256 \
+usb-power-monster.exe E:\ `
+  --usblpm "C:\path\to\UsbLPM.exe" `
+  --states U1,U2,U3 `
+  --cycles 10000 `
+  --payload-mib 256 `
   --idle-ms 100
 ```
+
+Microsoft's current MUTT download page lists Windows 10 and Windows 11 as supported operating systems. Microsoft's separate USBLPM documentation is older and still describes USBLPM as Windows 8-only. The harness must therefore detect whether USBLPM is present and working and must not infer support solely from the host Windows version.
 
 The Windows backend starts an ETW trace containing USBXHCI, UCX, and USBHUB3 providers. Windows selective suspend is enabled for U3-oriented testing, but the harness does not falsely claim that changing the policy itself proves the physical link entered U3.
 
