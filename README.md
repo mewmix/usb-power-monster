@@ -55,18 +55,28 @@ Official Microsoft download:
 - https://www.microsoft.com/en-us/download/details.aspx?id=51604
 - Current package at the time of writing: **MUTT USB Tool 3.0.0** (`MUTTPackage-3_0_0.msi`)
 
-After installing MUTT, locate `UsbLPM.exe` if necessary:
+The standard USBTest install provides architecture-specific copies at:
+
+```text
+C:\Program Files (x86)\USBTest\x64\UsbLPM.exe
+C:\Program Files (x86)\USBTest\x86\UsbLPM.exe
+C:\Program Files (x86)\USBTest\arm\UsbLPM.exe
+```
+
+Use the executable matching the host architecture. For normal 64-bit Windows systems, use the `x64` copy.
+
+If necessary, discover the installed copies with:
 
 ```powershell
 Get-ChildItem "C:\Program Files*" -Recurse -Filter UsbLPM.exe -ErrorAction SilentlyContinue |
     Select-Object -ExpandProperty FullName
 ```
 
-Then pass the discovered executable to USB Power Monster:
+Example for 64-bit Windows:
 
 ```powershell
-usb-power-monster.exe E:\ `
-  --usblpm "C:\path\to\UsbLPM.exe" `
+python -m usb_power_monster.cli E:\ `
+  --usblpm "C:\Program Files (x86)\USBTest\x64\UsbLPM.exe" `
   --states U1,U2,U3 `
   --cycles 10000 `
   --payload-mib 256
