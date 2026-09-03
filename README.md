@@ -1,10 +1,6 @@
 # USB Power Monster
 
-Cross-platform USB storage power-state torture harness for engineering regression.
-
-USB Power Monster is built to answer one question with hard evidence:
-
-> Did a USB power-management configuration actually fix the state machine, or did it merely avoid the failing path?
+Cross-platform USB storage power-state torture harness 
 
 ## Targets
 
