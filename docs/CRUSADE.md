@@ -1,8 +1,8 @@
 # The Crusade
 
-USB Power Monster exists to answer a narrow engineering question with unreasonable confidence:
+USB Power Monster exists to answer a question:
 
-> Did a USB power-management configuration actually fix the state machine, or did it merely hide the failing path?
+> Did we fix the state machine, or did we hide the failing path?
 
 ## Evidence rule
 
