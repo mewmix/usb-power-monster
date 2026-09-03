@@ -109,19 +109,33 @@ Microsoft distributes `UsbLPM.exe` inside the official **MUTT USB Tool** package
 
 Use the Microsoft package rather than copying `UsbLPM.exe` from an unknown or third-party source.
 
-After installation, locate the executable if its path is not obvious:
+The standard USBTest install provides architecture-specific copies at:
+
+```text
+C:\Program Files (x86)\USBTest\x64\UsbLPM.exe
+C:\Program Files (x86)\USBTest\x86\UsbLPM.exe
+C:\Program Files (x86)\USBTest\arm\UsbLPM.exe
+```
+
+Use the executable matching the host architecture. For normal 64-bit Windows systems, the default path is:
+
+```text
+C:\Program Files (x86)\USBTest\x64\UsbLPM.exe
+```
+
+If needed, discover all installed copies with:
 
 ```powershell
 Get-ChildItem "C:\Program Files*" -Recurse -Filter UsbLPM.exe -ErrorAction SilentlyContinue |
     Select-Object -ExpandProperty FullName
 ```
 
-Install USB Power Monster and run the campaign with the discovered path:
+Install USB Power Monster and run the campaign:
 
 ```powershell
 py -m pip install -e .
-usb-power-monster.exe E:\ `
-  --usblpm "C:\path\to\UsbLPM.exe" `
+python -m usb_power_monster.cli E:\ `
+  --usblpm "C:\Program Files (x86)\USBTest\x64\UsbLPM.exe" `
   --states U1,U2,U3 `
   --cycles 10000 `
   --payload-mib 256 `
